@@ -1,3 +1,16 @@
+x-SManager:
+  side_menu:
+    - Ссылки:
+        SHM web: http://${ODS_SM_SERVER_IP}:${EXT_PORT}
+  ui_edit_vars:
+    Порт веб интерфейса: EXT_PORT
+    TimeZone: TZ
+  source:
+    branch: smanager-params
+    url: https://github.com/SManager-forks/shm.git
+    yaml_path: https://raw.githubusercontent.com/SManager-forks/shm/smanager-params/docker-compose.yml
+    readme_path: https://raw.githubusercontent.com/SManager-forks/shm/smanager-params/README.md
+
 version: '2.1'
 services:
   api:
@@ -12,7 +25,7 @@ services:
       TZ: ${TZ}
       DB_NAME: ${MYSQL_DATABASE}
       DB_USER: ${MYSQL_USER}
-      DB_PASS: ${MYSQL_PASS}
+      DB_PASS: ${ODS_SM_GENERATE_RANDOM_UserPASS_20}
       DB_HOST: mysql
       DB_PORT: 3306
     links:
@@ -28,7 +41,7 @@ services:
       SHM_ROLE: "spool"
       DB_NAME: ${MYSQL_DATABASE}
       DB_USER: ${MYSQL_USER}
-      DB_PASS: ${MYSQL_PASS}
+      DB_PASS: ${ODS_SM_GENERATE_RANDOM_UserPASS_20}
       DB_HOST: mysql
       DB_PORT: 3306
     links:
@@ -42,7 +55,7 @@ services:
     environment:
       SHM_URL: http://api
     ports:
-      - "8081:80"
+      - "${EXT_PORT}:80"
     links:
       - api
   client:
@@ -59,19 +72,19 @@ services:
     restart: always
     environment:
       TZ: ${TZ}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASS}
+      MYSQL_ROOT_PASSWORD: ${ODS_SM_GENERATE_RANDOM_RootPASS_20}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASS}
+      MYSQL_PASSWORD: ${ODS_SM_GENERATE_RANDOM_UserPASS_20}
     volumes:
-      - "mysql-data:/var/lib/mysql"
+      - "./mysql-data:/var/lib/mysql"
     healthcheck:
       test: "mysqladmin ping -h 127.0.0.1 -u $$MYSQL_USER --password=$$MYSQL_PASSWORD"
       interval: 5s
       timeout: 3s
       retries: 10
 
-volumes:
-  mysql-data:
-    driver: local
+# volumes:
+#   mysql-data:
+#     driver: local
 
